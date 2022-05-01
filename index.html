@@ -1,0 +1,104 @@
+<html>
+
+<head>
+    <title>Payment Form</title>
+</head>
+
+<body>
+    <h2>Payroll</h2>
+    <form onsubmit="submitPayment(); return false;">
+        <label for="name">Name:</label><br>
+        <input type="text" id="name" name="name" value="" /><br><br>
+        <label for="department">Department:</label><br>
+        <input type="text" id="department" name="department" value="" /><br><br>
+        <label for="payment">Payment Amount:</label><br>
+        <input type="text" id="payment" name="payment" value="" /><br><br>
+        <input type="submit" value="Submit">
+    </form>
+    <strong>Payments</strong>
+    <div id="payments">
+
+    </div>
+
+    <h2>Assign Work Hours</h2>
+    <form onsubmit="submitSchedule(); return false;">
+        <label for="employeename">Name:</label><br>
+        <input type="text" id="employeename" name="employeename" value="" /><br><br>
+        <label for="shift">Shift:</label><br>
+        <input type="text" id="shift" name="shift" value="" /><br><br>
+        <input type="submit" value="Submit">
+    </form>
+    <strong>Schedule</strong>
+    <div id="schedules">
+
+    </div>
+
+    <script>
+        async function getPayments() {
+            fetch('https://rz66pc4896.execute-api.eu-west-1.amazonaws.com/prod/payments', {
+                method: 'GET'
+            })
+                .then(response => response.json())
+                .then((response) => {
+                    console.log(response.body);
+                    response.body.forEach(element => {
+                        document.getElementById("payments").innerHTML += "<p>" + "<strong>" + element.paymentId + " </strong>" + " | " + element.department + " | " + element.name + " | " + element.payment + "</p>"; // Adds each message to div
+                    });
+                });
+        }
+        async function submitPayment() {
+            var name = document.getElementById("name").value;
+            var department = document.getElementById("department").value;
+            var payment = document.getElementById("payment").value;
+
+            fetch('https://rz66pc4896.execute-api.eu-west-1.amazonaws.com/prod/payrollprocess', {
+                method: 'POST',
+                body: JSON.stringify({
+                    "name": name,
+                    "department": department,
+                    "payment": payment
+                })
+            })
+                .then(response => response.json())
+                .then((response) => {
+                    console.log(response);
+                    document.getElementById("payments").innerHTML += "<p>" + name + "</p>"; // Add new message to message list
+                });
+        }
+        getPayments(); // Calls get payments on load
+        
+        // scheduling
+        async function getSchedules() {
+            fetch('https://rz66pc4896.execute-api.eu-west-1.amazonaws.com/prod/schedule', {
+                method: 'GET'
+            })
+                .then(response => response.json())
+                .then((response) => {
+                    console.log(response.body);
+                    response.body.forEach(element => {
+                        document.getElementById("schedules").innerHTML += "<p>" + "<strong>" + element.name + " </strong>" + " | " + element.shift + "</p>"; // Adds each message to div
+                    });
+                });
+        }
+        async function submitSchedule() {
+            var name = document.getElementById("employeename").value;
+            var shift = document.getElementById("shift").value;
+
+            fetch('https://rz66pc4896.execute-api.eu-west-1.amazonaws.com/prod/schedule', {
+                method: 'POST',
+                body: JSON.stringify({
+                    "name": name,
+                    "shift": shift,
+                })
+            })
+                .then(response => response.json())
+                .then((response) => {
+                    console.log(response);
+                    document.getElementById("schedules").innerHTML += "<p>" + name + "</p>"; // Add new message to message list
+                });
+        }
+        getSchedules(); // Calls get schedule on load
+    </script>
+</body>
+
+</html>
